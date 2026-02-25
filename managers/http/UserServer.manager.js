@@ -177,6 +177,17 @@ module.exports = class UserServer {
             .patch('/api/students/:studentId', (ctx) => this._executeApi(ctx, { moduleName: 'students', fnName: 'v1_updateStudent', injectParams: ['studentId'] }))
             .delete('/api/students/:studentId', (ctx) => this._executeApi(ctx, { moduleName: 'students', fnName: 'v1_deleteStudent', injectParams: ['studentId'] }))
             .post('/api/students/:studentId/transfer', (ctx) => this._executeApi(ctx, { moduleName: 'students', fnName: 'v1_transferStudent', injectParams: ['studentId'] }))
+            .get('/health', (ctx) => {
+                this._applySecurityHeaders(ctx.set);
+                ctx.set.status = 200;
+                return {
+                    ok: true,
+                    service: this.config.dotEnv.SERVICE_NAME || 'sms',
+                    version: this.config.dotEnv.SERVICE_VERSION || '0.1.0',
+                    uptime: Math.floor(process.uptime()),
+                    timestamp: new Date().toISOString(),
+                };
+            })
             .all('/api/:moduleName/:fnName', (ctx) => {
                 const { moduleName, fnName } = ctx.params;
                 return this._executeApi(ctx, { moduleName, fnName });
