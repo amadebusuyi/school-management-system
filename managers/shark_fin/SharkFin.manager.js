@@ -1,3 +1,7 @@
+const bufferModule = require('buffer');
+if (!bufferModule.SlowBuffer) {
+  bufferModule.SlowBuffer = bufferModule.Buffer;
+}
 const jwt        = require('jsonwebtoken');
 const { nanoid } = require('nanoid');
 const md5        = require('md5');

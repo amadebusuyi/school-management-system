@@ -1,15 +1,25 @@
-const useragent         = require('useragent');
-const requestIp         = require('request-ip');
+const useragent = require('useragent');
+const requestIp = require('request-ip');
 
-module.exports = ({ meta, config, managers }) =>{
-    return ({req, res, next})=>{
-        let ip = 'N/A';
-        let agent = 'N/A';
-        ip = requestIp.getClientIp(req) || ip;
-        agent = useragent.lookup(req.headers['user-agent']) || agent;
-        const device = {
-            ip, agent
+module.exports = () => {
+    return ({ req, next }) => {
+        let ip = req.clientIp || 'N/A';
+        let agent = req.headers ? req.headers['user-agent'] || req.headers['User-Agent'] : 'N/A';
+
+        try {
+            if (!req.clientIp) {
+                ip = requestIp.getClientIp(req) || ip;
+            }
+        } catch (_) {
+            // no-op
         }
-        next(device);
-    }
-}
+
+        try {
+            agent = useragent.lookup(agent || '').toString();
+        } catch (_) {
+            agent = agent || 'N/A';
+        }
+
+        next({ ip, agent });
+    };
+};
